@@ -677,8 +677,9 @@ void selfn_monitor_set_llc_percent(void)
         sel_llc_format = LLC_FORMAT_PERCENT;
 }
 
-void selfn_static_mode(void)
+void selfn_static_mode(const char *arg)
 {
+        UNUSED_ARG(arg);
 	sel_static_mode = 1;
 }
 
@@ -2657,7 +2658,7 @@ void monitor_loop(void)
         const long interval =
                 (long)sel_mon_interval * 100000LL; /* interval in [us] units */
         struct timeval tv_start, tv_s;
-        const int istty = isatty(fileno(fp_monitor)) && !self_static_mode;
+        const int istty = isatty(fileno(fp_monitor)) && !sel_static_mode;
         const int istext = !strcasecmp(sel_output_type, "text");
         const int isxml = !strcasecmp(sel_output_type, "xml");
         const int iscsv = !strcasecmp(sel_output_type, "csv");
@@ -2805,7 +2806,7 @@ wait_sleep:
 
                 if (sel_timeout >= 0) {
                         gettimeofday(&tv_e, NULL);
-                        if ((tv_e.tv_sec - tv_start.tv_sec) > sel_timeout)
+                        if ((tv_e.tv_sec - tv_start.tv_sec) >= sel_timeout)
                                 break;
                 }
 

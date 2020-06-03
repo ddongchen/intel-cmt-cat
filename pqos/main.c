@@ -951,7 +951,7 @@ int main(int argc, char **argv)
                         selfn_show_allocation(NULL);
                         break;
                 case 'S':
-                        selfn_static_mode();
+                        selfn_static_mode(NULL);
                         break;
                 case 'd':
                         selfn_display(NULL);

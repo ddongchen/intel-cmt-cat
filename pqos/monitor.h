@@ -124,7 +124,7 @@ void selfn_monitor_disable_llc_miss(const char *arg);
 /*
  * @brief Output monitored data in staitc mode
  */
-void selfn_static_mode(void);
+void selfn_static_mode(const char *arg);
 
 /**
  * @brief Stops monitoring on selected core(s)/pid(s)
