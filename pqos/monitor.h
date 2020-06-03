@@ -121,6 +121,11 @@ void selfn_monitor_disable_ipc(const char *arg);
  */
 void selfn_monitor_disable_llc_miss(const char *arg);
 
+/*
+ * @brief Output monitored data in staitc mode
+ */
+void selfn_static_mode(void);
+
 /**
  * @brief Stops monitoring on selected core(s)/pid(s)
  *

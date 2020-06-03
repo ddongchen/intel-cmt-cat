@@ -550,6 +550,7 @@ parse_config_file(const char *fname)
                 {"display-verbose:",    selfn_display_verbose },   /**< -D */
                 {"log-file:",           selfn_log_file },          /**< -l */
                 {"verbose-mode:",       selfn_verbose_mode },      /**< -v */
+                {"static-mode:",        selfn_static_mode },       /**< -S */
                 {"super-verbose-mode:", selfn_super_verbose_mode },/**< -V */
                 {"alloc-class-set:",    selfn_allocation_class },  /**< -e */
                 {"alloc-assoc-set:",    selfn_allocation_assoc },  /**< -a */
@@ -641,7 +642,7 @@ static const char help_printf_short[] =
 #ifdef PQOS_RMID_CUSTOM
         "       %s [--rmid=RMIDCORES]\n"
 #endif
-        "       %s [--disable-mon-ipc] [--disable-mon-llc_miss]"
+        "       %s [--disable-mon-ipc] [--disable-mon-llc_miss] [--static-mode]"
         "          [-t SECONDS] [--mon-time=SECONDS]\n"
         "          [-i N] [--mon-interval=N]\n"
         "          [-T] [--mon-top]\n"
@@ -725,6 +726,7 @@ static const char help_printf_long[] =
         "          TYPE is one of: text (default), xml or csv.\n"
         "  -i N, --mon-interval=N      set sampling interval to Nx100ms,\n"
         "                              default 10 = 10 x 100ms = 1s.\n"
+        "  -S, --static-mode           output monitored data with static mode\n"
         "  -T, --mon-top               top like monitoring output\n"
         "  -t SECONDS, --mon-time=SECONDS\n"
         "          set monitoring time in seconds. Use 'inf' or 'infinite'\n"
@@ -804,6 +806,7 @@ static struct option long_cmd_opts[] = {
         {"super-verbose",        no_argument,       0, 'V'},
         {"iface-os",             no_argument,       0, 'I'},
         {"percent-llc",          no_argument,       0, 'P'},
+        {"static-mode",          no_argument,       0, 'S'},
         {"version",              no_argument,       0, 'w'},
 #ifdef PQOS_RMID_CUSTOM
         {"rmid",                 required_argument, 0, OPTION_RMID},
@@ -946,6 +949,9 @@ int main(int argc, char **argv)
                         break;
                 case 's':
                         selfn_show_allocation(NULL);
+                        break;
+                case 'S':
+                        selfn_static_mode();
                         break;
                 case 'd':
                         selfn_display(NULL);

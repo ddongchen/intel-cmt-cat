@@ -95,6 +95,9 @@ static int sel_disable_ipc = 0;
 /** Trigger for disabling llc_miss monitoring */
 static int sel_disable_llc_miss = 0;
 
+/** Output monitored data in static mode */
+static int sel_static_mode = 0;
+
 /**
  * The mask to tell which events to display
  */
@@ -672,6 +675,11 @@ void selfn_monitor_file(const char *arg)
 void selfn_monitor_set_llc_percent(void)
 {
         sel_llc_format = LLC_FORMAT_PERCENT;
+}
+
+void selfn_static_mode(void)
+{
+	sel_static_mode = 1;
 }
 
 void selfn_monitor_disable_ipc(const char *arg)
@@ -2649,7 +2657,7 @@ void monitor_loop(void)
         const long interval =
                 (long)sel_mon_interval * 100000LL; /* interval in [us] units */
         struct timeval tv_start, tv_s;
-        const int istty = isatty(fileno(fp_monitor));
+        const int istty = isatty(fileno(fp_monitor)) && !self_static_mode;
         const int istext = !strcasecmp(sel_output_type, "text");
         const int isxml = !strcasecmp(sel_output_type, "xml");
         const int iscsv = !strcasecmp(sel_output_type, "csv");
@@ -2712,6 +2720,7 @@ void monitor_loop(void)
         gettimeofday(&tv_start, NULL);
         tv_s = tv_start;
 
+	int first_loop = 1;
         while (!stop_monitoring_loop) {
                 struct timeval tv_e;
                 struct tm *ptm = NULL;
@@ -2727,6 +2736,10 @@ void monitor_loop(void)
                         free(mon_data);
                         return;
                 }
+		if (first_loop == 1) {
+			first_loop = 0;
+			goto wait_sleep;
+		}
                 memcpy(mon_data, mon_grps, mon_number * sizeof(mon_grps[0]));
 
                 if (sel_mon_top_like)
@@ -2787,7 +2800,14 @@ void monitor_loop(void)
 
                 fflush(fp_monitor);
 
+wait_sleep:
                 gettimeofday(&tv_e, NULL);
+
+                if (sel_timeout >= 0) {
+                        gettimeofday(&tv_e, NULL);
+                        if ((tv_e.tv_sec - tv_start.tv_sec) > sel_timeout)
+                                break;
+                }
 
                 if (stop_monitoring_loop)
                         break;
@@ -2822,12 +2842,6 @@ void monitor_loop(void)
 
                 /* move tv_s to the next interval */
                 usec_to_timeval(&tv_s, usec_start + interval);
-
-                if (sel_timeout >= 0) {
-                        gettimeofday(&tv_e, NULL);
-                        if ((tv_e.tv_sec - tv_start.tv_sec) > sel_timeout)
-                                break;
-                }
         }
         if (isxml)
                 fprintf(fp_monitor, "%s\n", xml_root_close);
